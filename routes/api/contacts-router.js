@@ -16,7 +16,7 @@ contactsRouter.post(
 
 contactsRouter.put(
   '/:contactId',
-  contactValidation.addContactValidate,
+  contactValidation.putContactValidate,
   contactController.updateById
 );
 

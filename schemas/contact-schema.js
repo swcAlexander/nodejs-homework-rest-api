@@ -12,4 +12,9 @@ const contactAddSchema = Joi.object({
   }),
 });
 
-export default contactAddSchema;
+const contactPutSchema = Joi.object({
+  name: Joi.string(),
+  email: Joi.string(),
+  phone: Joi.string(),
+});
+export default { contactAddSchema, contactPutSchema };
