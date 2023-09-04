@@ -50,7 +50,7 @@ const updateContact = async (id, body) => {
   if (index === -1) {
     return null;
   }
-  contacts[index] = { id, ...contacts[index], ...body };
+  contacts[index] = { ...contacts[index], ...body };
   await updateContacts(contacts);
   return contacts[index];
 };
