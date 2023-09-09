@@ -1,25 +1,35 @@
 import express from 'express';
 import contactController from '../../controllers/contact-controller.js';
-import contactValidation from '../../middleware/validation/contact-validation.js';
+import {
+  contactValidate,
+  isValidId,
+} from '../../middleware/validation/index.js';
 
 const contactsRouter = express.Router();
 
 contactsRouter.get('/', contactController.getAll);
 
-contactsRouter.get('/:contactId', contactController.getById);
+contactsRouter.get('/:contactId', isValidId, contactController.getById);
 
 contactsRouter.post(
   '/',
-  contactValidation.addContactValidate,
+  contactValidate.addContactValidate,
   contactController.add
 );
 
 contactsRouter.put(
   '/:contactId',
-  contactValidation.putContactValidate,
+  isValidId,
+  contactValidate.putContactValidate,
   contactController.updateById
 );
 
-contactsRouter.delete('/:contactId', contactController.deleteById);
+contactsRouter.patch(
+  '/:contactId/favorite',
+  isValidId,
+  contactValidate.patchContactValidate,
+  contactController.updateById
+);
+contactsRouter.delete('/:contactId', isValidId, contactController.deleteById);
 
 export default contactsRouter;
