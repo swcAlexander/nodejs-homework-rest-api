@@ -5,20 +5,22 @@ export const validRegex =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const userSchema = new Schema(
   {
-    username: {
+    password: {
       type: String,
-      required: [true, 'Set name for contact'],
+      required: [true, 'Set password for user'],
     },
     email: {
       type: String,
-      match: validRegex,
+      required: [true, 'Email is required'],
       unique: true,
-      required: [true, 'Set name for contact'],
     },
-    password: {
+    subscription: {
       type: String,
-      minlength: 6,
-      required: true,
+      enum: ['starter', 'pro', 'business'],
+      default: 'starter',
+    },
+    token: {
+      type: String,
     },
   },
   { versionKey: false, timestamps: true }

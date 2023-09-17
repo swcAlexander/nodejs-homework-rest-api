@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { validRegex } from '../models/Users.js';
+import { validRegex } from '../models/users.js';
 
 export const userSignUpSchema = Joi.object({
   username: Joi.string().required().messages({
