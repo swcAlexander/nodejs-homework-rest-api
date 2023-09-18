@@ -1,11 +1,13 @@
 import express from 'express';
 import contactController from '../../controllers/contact-controller.js';
 import {
+  authenticate,
   contactValidate,
   isValidId,
-} from '../../middleware/validation/index.js';
+} from '../../middleware/index.js';
 
 const contactsRouter = express.Router();
+contactsRouter.use(authenticate);
 
 contactsRouter.get('/', contactController.getAll);
 
