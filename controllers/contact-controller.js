@@ -1,11 +1,22 @@
-// import { HttpError } from '../helpers/index.js';
+import { HttpError } from '../helpers/index.js';
 import { ctrlWrapper } from '../decorators/index.js';
 import Contact from '../models/contacts.js';
 
 const getAll = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 20, favorite = false } = req.query;
   const skip = (page - 1) * limit;
+  if (favorite) {
+    const result = await Contact.find(
+      { owner, favorite },
+      '-createdAt -updatedAt',
+      {
+        skip,
+        limit,
+      }
+    ).populate('owner', 'name email');
+    res.json(result);
+  }
   const result = await Contact.find({ owner }, '-createdAt -updatedAt', {
     skip,
     limit,
@@ -13,6 +24,7 @@ const getAll = async (req, res) => {
   res.json(result);
 };
 
+const getAllfavorite = async (req, res) => {};
 const getById = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findById(contactId);
@@ -51,4 +63,5 @@ export default {
   add: ctrlWrapper(add),
   updateById: ctrlWrapper(updateById),
   deleteById: ctrlWrapper(deleteById),
+  getAllfavorite: ctrlWrapper(getAllfavorite),
 };
