@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
 import { HttpError } from '../../helpers/index.js';
 import User from '../../models/users.js';
+import ctrlWrapper from '../../decorators/ctrlWrapper.js';
 
 const { JWT_SECRET } = process.env;
 
-const authentificate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const { authorization = '' } = req.headers;
     const [bearer, token] = authorization.split(' ');
-    if (bearer !== 'bearer') {
+    if (bearer !== 'Bearer') {
       throw HttpError(401);
     }
     const { id } = jwt.verify(token, JWT_SECRET);
@@ -22,6 +23,5 @@ const authentificate = async (req, res, next) => {
     throw HttpError(401);
   }
 };
-export default authentificate;
+export default ctrlWrapper(authenticate);
 
-//   const decodeToken = jwt.decode(token);

@@ -15,7 +15,7 @@ const getAll = async (req, res) => {
         limit,
       }
     ).populate('owner', 'name email');
-    res.json(result);
+    return res.json(result);
   }
   const result = await Contact.find({ owner }, '-createdAt -updatedAt', {
     skip,
