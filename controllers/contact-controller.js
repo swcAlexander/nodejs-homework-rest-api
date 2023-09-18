@@ -24,10 +24,10 @@ const getAll = async (req, res) => {
   res.json(result);
 };
 
-const getAllfavorite = async (req, res) => {};
 const getById = async (req, res) => {
+  const { _id: owner } = req.user;
   const { contactId } = req.params;
-  const result = await Contact.findById(contactId);
+  const result = await Contact.findOne({_id: contactId, owner});
   if (!result) {
     throw HttpError(404);
   }
@@ -41,16 +41,18 @@ const add = async (req, res) => {
 };
 
 const updateById = async (req, res) => {
+  const { _id: owner } = req.user;
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
+  const result = await Contact.findOneAndUpdate({_id: contactId, owner}, req.body, {
     new: true,
   });
   res.status(201).json(result);
 };
 
 const deleteById = async (req, res) => {
+   const { _id: owner } = req.user;
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndDelete(contactId);
+  const result = await Contact.findOneAndDelete({_id: contactId, owner});
   if (!result) {
     throw HttpError(404);
   }
@@ -63,5 +65,4 @@ export default {
   add: ctrlWrapper(add),
   updateById: ctrlWrapper(updateById),
   deleteById: ctrlWrapper(deleteById),
-  getAllfavorite: ctrlWrapper(getAllfavorite),
 };
