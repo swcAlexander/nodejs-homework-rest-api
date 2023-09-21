@@ -1,12 +1,17 @@
 import express from 'express';
 import { userValidate } from '../../middleware/index.js';
 import authController from '../../controllers/auth-controller.js';
-import { authenticate } from '../../middleware/index.js';
+import { authenticate, upload } from '../../middleware/index.js';
 
 const authRouter = express.Router();
 
+// upload.single('poster'),  - якщо ми очікуємо один файл в одному полі
+// upload.arrey('poster', 8) - якщо ми очікуємо декілька файлів в одному полі
+// upload.fields([name: 'poster', maxCount: 1]) -якщо ми очікуємо декілька полів
+
 authRouter.post(
   '/register',
+  upload.single('avatars'), 
   userValidate.userSignUpValidate,
   authController.signUp
 );
