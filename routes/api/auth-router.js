@@ -11,7 +11,7 @@ const authRouter = express.Router();
 
 authRouter.post(
   '/register',
-  upload.single('avatars'), 
+  upload.single('avatars'),
   userValidate.userSignUpValidate,
   authController.signUp
 );
@@ -19,6 +19,12 @@ authRouter.post(
   '/login',
   userValidate.userSignInValidate,
   authController.signIn
+);
+authRouter.patch(
+  '/users/avatars',
+  authenticate,
+  upload.single('avatar'),
+  authController.updateAvatar
 );
 
 authRouter.get('/current', authenticate, authController.getCurrent);
