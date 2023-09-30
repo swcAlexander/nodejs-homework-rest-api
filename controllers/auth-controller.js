@@ -1,13 +1,15 @@
 import bcrypt from 'bcryptjs';
 import fs from 'fs/promises';
 import jwt from 'jsonwebtoken';
-import 'dotenv/config';
-import User from '../models/users.js';
-import { ctrlWrapper } from '../decorators/index.js';
-import HttpError from '../helpers/HttpError.js';
+import { nanoid } from 'nanoid';
 import path from 'path';
 import gravatar from 'gravatar';
 import Jimp from 'jimp';
+import 'dotenv/config';
+
+import { sendMail, HttpError } from '../helpers/index.js';
+import User from '../models/users.js';
+import { ctrlWrapper } from '../decorators/index.js';
 
 const posterPath = path.resolve('public', 'avatars');
 
@@ -16,6 +18,8 @@ const { JWT_SECRET } = process.env;
 const signUp = async (req, res) => {
   const { email, password } = req.body;
   const avatarURL = gravatar.url(email, { size: 400 });
+  const verificationToken = nanoid();
+
   if (req.file) {
     const { path: oldPath, filename } = req.file;
     const newPath = path.join(posterPath, filename);
@@ -27,10 +31,13 @@ const signUp = async (req, res) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
+    await sendMail(email, verificationToken);
+
     const newUser = await User.create({
       ...req.body,
       poster,
       password: hashPassword,
+      verificationToken,
     });
     return res.status(201).json({
       username: newUser.username,
@@ -44,11 +51,13 @@ const signUp = async (req, res) => {
     throw HttpError(409, 'Email in use');
   }
   const hashPassword = await bcrypt.hash(password, 10);
+  await sendMail(email, verificationToken);
 
   const newUser = await User.create({
     ...req.body,
     avatarURL,
     password: hashPassword,
+    verificationToken,
   });
   res.status(201).json({
     username: newUser.username,
@@ -66,6 +75,9 @@ const signIn = async (req, res) => {
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
     throw HttpError(401, 'Email or password is wrong');
+  }
+  if (!user.verify) {
+    throw HttpError(401, 'Email net verify');
   }
   const { _id: id } = user;
   const payload = {
@@ -89,6 +101,36 @@ const getCurrent = (req, res) => {
     email,
   });
 };
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+  res.json({
+    message: 'Verification successful',
+  });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = User.findOne({ email });
+  if (!user) {
+    throw HttpError(404, 'Email not found');
+  }
+  if (user.verify) {
+    throw HttpError(400, 'Email already verify');
+  }
+  res.json({
+    message: 'Verification successful',
+  });
+  await sendMail(email, user.verificationToken);
+};
+
 const signout = async (req, res) => {
   const { _id } = req.user;
   await User.findByIdAndUpdate(_id, { token: '' });
@@ -120,4 +162,6 @@ export default {
   getCurrent: ctrlWrapper(getCurrent),
   signout: ctrlWrapper(signout),
   updateAvatar: ctrlWrapper(updateAvatar),
+  verify: ctrlWrapper(verify),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };

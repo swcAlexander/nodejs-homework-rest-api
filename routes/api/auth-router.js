@@ -9,6 +9,12 @@ const authRouter = express.Router();
 // upload.arrey('poster', 8) - якщо ми очікуємо декілька файлів в одному полі
 // upload.fields([name: 'poster', maxCount: 1]) -якщо ми очікуємо декілька полів
 
+authRouter.get('/verify/:verificationToken', authController.verify);
+authRouter.post(
+  '/verify',
+  userValidate.userEmailValidate,
+  authController.resendVerifyEmail
+);
 authRouter.post(
   '/register',
   upload.single('avatars'),
