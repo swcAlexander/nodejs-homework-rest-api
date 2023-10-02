@@ -77,7 +77,7 @@ const signIn = async (req, res) => {
     throw HttpError(401, 'Email or password is wrong');
   }
   if (!user.verify) {
-    throw HttpError(401, 'Email net verify');
+    throw HttpError(401, 'Email not verify');
   }
   const { _id: id } = user;
   const payload = {
