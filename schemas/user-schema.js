@@ -21,3 +21,9 @@ export const userSignInSchema = Joi.object({
     'any.required': `"password" must be exist`,
   }),
 });
+
+export const userVerifySchema = Joi.object({
+  email: Joi.string().pattern(validRegex).required().messages({
+    'any.required': `"email" must be exist`,
+  }),
+});
